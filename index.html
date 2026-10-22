@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>麦门老黄历 · 今日宜麦麦</title>
+<style>
+  :root{
+    --paper:#f3ead3;
+    --paper-deep:#eadfc0;
+    --card:#fdf8ea;
+    --red:#b5392c;
+    --red-deep:#8e2b21;
+    --ink:#3a2f24;
+    --ink-soft:#7a6c58;
+    --gold:#c9a227;
+    --line:#d8c9a3;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Songti SC","STSong","SimSun","Noto Serif SC",serif;
+    min-height:100vh;
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(201,162,39,.06), transparent 40%),
+      radial-gradient(circle at 85% 90%, rgba(181,57,44,.05), transparent 45%);
+  }
+  .page{max-width:480px;margin:0 auto;padding:20px 16px 60px;position:relative}
+
+  /* ===== 顶部 ===== */
+  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .brand{font-size:13px;letter-spacing:2px;color:var(--ink-soft)}
+  .brand b{color:var(--red);font-weight:700}
+  .badge-1024{
+    font-size:11px;color:var(--paper);background:var(--red);
+    padding:4px 10px;border-radius:999px;letter-spacing:1px;
+    box-shadow:0 2px 6px rgba(142,43,33,.25);
+  }
+
+  /* ===== 黄历头 ===== */
+  .almanac-head{
+    background:linear-gradient(180deg,var(--card),var(--paper-deep));
+    border:2px solid var(--red-deep);
+    border-radius:14px;
+    padding:22px 18px 18px;
+    position:relative;
+    box-shadow:0 6px 20px rgba(58,47,36,.10);
+    overflow:hidden;
+  }
+  .almanac-head::before{
+    content:"麦门永存";
+    position:absolute;top:14px;right:12px;
+    writing-mode:vertical-rl;
+    font-size:12px;letter-spacing:4px;color:var(--red);
+    opacity:.85;font-family:"Kaiti SC","KaiTi","STKaiti",cursive;
+  }
+  .date-line{font-size:14px;color:var(--ink-soft);letter-spacing:1px;margin-bottom:10px}
+  .hero-yiji{display:flex;align-items:flex-end;gap:18px}
+  .hero-item{display:flex;align-items:baseline;gap:8px}
+  .hero-label{font-size:15px;color:var(--ink-soft);font-family:"Kaiti SC","KaiTi",cursive}
+  .hero-word{font-size:52px;font-weight:700;line-height:1}
+  .hero-word.yi{color:var(--red)}
+  .hero-word.ji{color:var(--ink)}
+  .hero-sub{margin-top:10px;font-size:13px;color:var(--ink-soft)}
+  .hero-sub em{font-style:normal;color:var(--gold);font-weight:700}
+
+  /* ===== 状态选择 ===== */
+  .section-title{
+    display:flex;align-items:center;gap:10px;
+    font-size:15px;font-weight:700;margin:26px 0 12px;letter-spacing:1px;
+  }
+  .section-title::before,.section-title::after{
+    content:"";height:1px;flex:1;background:var(--line);
+  }
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{
+    border:1.5px solid var(--line);background:var(--card);color:var(--ink);
+    font-size:13px;padding:8px 14px;border-radius:999px;cursor:pointer;
+    font-family:inherit;transition:all .18s;
+  }
+  .chip:active{transform:scale(.96)}
+  .chip.on{
+    border-color:var(--red);background:var(--red);color:#fdf8ea;
+    box-shadow:0 3px 10px rgba(181,57,44,.28);
+  }
+
+  /* ===== 转盘 ===== */
+  .wheel-wrap{display:flex;flex-direction:column;align-items:center;margin-top:22px}
+  .wheel{
+    width:220px;height:220px;border-radius:50%;
+    position:relative;
+    background:
+      radial-gradient(circle, var(--card) 0 34%, var(--paper-deep) 34% 100%);
+    border:3px solid var(--red-deep);
+    box-shadow:
+      0 0 0 6px var(--paper),
+      0 0 0 8px var(--gold),
+      0 10px 26px rgba(58,47,36,.18);
+    transition:transform 2.4s cubic-bezier(.17,.67,.21,1.01);
+    margin:14px 0;
+  }
+  .wheel-item{
+    position:absolute;left:50%;top:50%;
+    font-size:13px;color:var(--ink);white-space:nowrap;
+    transform-origin:0 0;
+    font-weight:700;
+  }
+  .wheel-needle{
+    position:absolute;left:50%;top:-14px;transform:translateX(-50%);
+    width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;
+    border-top:16px solid var(--red);filter:drop-shadow(0 2px 3px rgba(0,0,0,.25));
+    z-index:2;
+  }
+  .wheel-center{
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:76px;height:76px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #d4523f, var(--red-deep));
+    color:#fdf8ea;display:flex;align-items:center;justify-content:center;
+    font-size:15px;font-weight:700;letter-spacing:2px;
+    box-shadow:inset 0 2px 6px rgba(255,255,255,.25), 0 3px 8px rgba(142,43,33,.4);
+    font-family:"Kaiti SC","KaiTi",cursive;
+  }
+  .spin-btn{
+    margin-top:6px;border:none;cursor:pointer;
+    background:linear-gradient(180deg,#c8463a,var(--red-deep));
+    color:#fdf8ea;font-size:17px;font-weight:700;letter-spacing:6px;
+    padding:13px 44px 13px 50px;border-radius:999px;font-family:inherit;
+    box-shadow:0 5px 16px rgba(142,43,33,.35);
+    transition:transform .15s;
+  }
+  .spin-btn:active{transform:scale(.95)}
+  .spin-btn:disabled{opacity:.55;cursor:not-allowed}
+  .lock-note{font-size:12px;color:var(--ink-soft);margin-top:10px;min-height:16px}
+
+  /* ===== 运势结果卡 ===== */
+  .result{
+    margin-top:26px;background:var(--card);
+    border:2px solid var(--red-deep);border-radius:14px;
+    overflow:hidden;box-shadow:0 6px 20px rgba(58,47,36,.12);
+    display:none;
+  }
+  .result.show{display:block;animation:cardIn .5s cubic-bezier(.2,.9,.3,1.2)}
+  @keyframes cardIn{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:none}}
+  .result-head{
+    background:linear-gradient(135deg,var(--red),var(--red-deep));
+    color:#fdf8ea;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;
+  }
+  .result-head .lvl{font-size:22px;font-weight:700;letter-spacing:3px;font-family:"Kaiti SC","KaiTi",cursive}
+  .result-head .tag{font-size:12px;opacity:.92;letter-spacing:1px}
+  .result-body{padding:16px}
+  .yiji-row{display:flex;gap:12px;margin-bottom:12px}
+  .yiji-cell{flex:1;background:var(--paper);border:1px dashed var(--line);border-radius:10px;padding:12px}
+  .yiji-cell .k{font-size:14px;font-weight:700;margin-bottom:4px}
+  .yiji-cell.yi .k{color:var(--red)}
+  .yiji-cell.ji .k{color:var(--ink)}
+  .yiji-cell .v{font-size:16px;font-weight:700;line-height:1.35}
+  .yiji-cell .w{font-size:12px;color:var(--ink-soft);margin-top:4px;line-height:1.5}
+  .poem{
+    text-align:center;font-family:"Kaiti SC","KaiTi","STKaiti",cursive;
+    font-size:19px;color:var(--red-deep);letter-spacing:2px;
+    padding:14px 8px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+    margin:6px 0 14px;
+  }
+  .pkg-title{font-size:13px;font-weight:700;color:var(--ink-soft);letter-spacing:2px;margin-bottom:8px}
+  .pkg-item{display:flex;justify-content:space-between;font-size:14px;padding:6px 0;border-bottom:1px dotted var(--line)}
+  .pkg-item:last-of-type{border-bottom:none}
+  .pkg-item .p{color:var(--ink-soft)}
+  .pkg-total{display:flex;justify-content:space-between;align-items:baseline;margin-top:10px;padding-top:10px;border-top:2px solid var(--red-deep)}
+  .pkg-total .l{font-size:13px;color:var(--ink-soft)}
+  .pkg-total .r{font-size:13px;color:var(--ink-soft)}
+  .pkg-total .r b{font-size:22px;color:var(--red)}
+  .mock-note{font-size:11px;color:var(--ink-soft);text-align:center;margin-top:10px;line-height:1.6}
+  .share-btn{
+    display:block;width:100%;margin-top:14px;border:1.5px solid var(--red);
+    background:transparent;color:var(--red);font-size:14px;font-weight:700;
+    padding:11px;border-radius:10px;cursor:pointer;font-family:inherit;letter-spacing:2px;
+  }
+  .share-btn:active{background:var(--red);color:#fdf8ea}
+
+  /* ===== 木鱼彩蛋 ===== */
+  .muyu{
+    margin-top:34px;text-align:center;position:relative;
+  }
+  .muyu-btn{
+    border:none;background:transparent;cursor:pointer;font-size:44px;line-height:1;
+    transition:transform .08s;font-family:inherit;
+  }
+  .muyu-btn:active{transform:scale(.88)}
+  .muyu-tip{font-size:12px;color:var(--ink-soft);margin-top:4px;letter-spacing:1px}
+  .merit{
+    position:absolute;left:50%;transform:translateX(-50%);
+    font-size:15px;font-weight:700;color:var(--red);
+    font-family:"Kaiti SC","KaiTi",cursive;
+    pointer-events:none;animation:meritUp 1.1s ease-out forwards;
+    white-space:nowrap;
+  }
+  @keyframes meritUp{
+    0%{opacity:0;transform:translate(-50%,0) scale(.8)}
+    15%{opacity:1}
+    100%{opacity:0;transform:translate(-50%,-70px) scale(1.15)}
+  }
+
+  /* ===== 页脚 ===== */
+  footer{
+    margin-top:44px;border-top:1px solid var(--line);padding-top:18px;
+    font-size:12px;color:var(--ink-soft);line-height:2;text-align:center;
+  }
+  footer .f-title{font-size:13px;font-weight:700;color:var(--ink);letter-spacing:1px}
+  footer a{color:var(--red);text-decoration:none;border-bottom:1px dotted var(--red)}
+  .star-btn{
+    display:inline-block;margin-top:10px;background:#24292f;color:#fff;
+    font-size:13px;font-weight:700;padding:9px 22px;border-radius:8px;
+    text-decoration:none;border:none;letter-spacing:1px;
+    box-shadow:0 3px 10px rgba(36,41,47,.3);
+  }
+  .star-btn:active{transform:scale(.96)}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="topbar">
+    <div class="brand"><b>麦门老黄历</b> · MAIMEN ALMANAC</div>
+    <div class="badge-1024">1024 程序员节参赛作品</div>
+  </div>
+
+  <!-- 黄历头 -->
+  <div class="almanac-head">
+    <div class="date-line" id="dateLine">麦历 加载中…</div>
+    <div class="hero-yiji">
+      <div class="hero-item">
+        <span class="hero-label">宜</span>
+        <span class="hero-word yi">麦麦</span>
+      </div>
+      <div class="hero-item">
+        <span class="hero-label">忌</span>
+        <span class="hero-word ji">emo</span>
+      </div>
+    </div>
+    <div class="hero-sub">今日运势 <em>「麦门庇佑」</em> · 选择你的状态，罗盘一转，吉凶自现</div>
+  </div>
+
+  <!-- 状态选择 -->
+  <div class="section-title">今日状态（可多选）</div>
+  <div class="chips" id="chips"></div>
+
+  <!-- 转盘 -->
+  <div class="wheel-wrap">
+    <div class="wheel" id="wheel">
+      <div class="wheel-needle"></div>
+      <div class="wheel-center">开<br>转</div>
+    </div>
+    <button class="spin-btn" id="spinBtn">开 转</button>
+    <div class="lock-note" id="lockNote"></div>
+  </div>
+
+  <!-- 结果 -->
+  <div class="result" id="result">
+    <div class="result-head">
+      <div class="lvl" id="rLvl">大吉</div>
+      <div class="tag" id="rTag">麦门历 · 今日签</div>
+    </div>
+    <div class="result-body">
+      <div class="yiji-row">
+        <div class="yiji-cell yi">
+          <div class="k">宜</div>
+          <div class="v" id="rYi"></div>
+          <div class="w" id="rYiWhy"></div>
+        </div>
+        <div class="yiji-cell ji">
+          <div class="k">忌</div>
+          <div class="v" id="rJi"></div>
+          <div class="w" id="rJiWhy"></div>
+        </div>
+      </div>
+      <div class="poem" id="rPoem"></div>
+      <div class="pkg-title">— 开 运 套 餐 —</div>
+      <div id="rPkg"></div>
+      <div class="pkg-total">
+        <span class="l">官方算价 / 券后参考价</span>
+        <span class="r">¥<b id="rPrice"></b> <span style="font-size:12px">起</span></span>
+      </div>
+      <button class="share-btn" id="shareBtn">📋 复制今日签文，去朋友圈麦一个</button>
+      <div class="mock-note">
+        本页为演示界面 · Skill 已接入麦当劳官方 MCP<br>真实模式：日期 / 优惠券 / 营养数据 / 门店均为实时数据
+      </div>
+    </div>
+  </div>
+
+  <!-- 木鱼彩蛋 -->
+  <div class="muyu">
+    <button class="muyu-btn" id="muyuBtn">🪵</button>
+    <div class="muyu-tip">敲一敲 · 功德 +1 · 麦门保佑（彩蛋，不影响运势）</div>
+  </div>
+
+  <!-- 页脚 -->
+  <footer>
+    <div class="f-title">麦门老黄历 · mcd-almanac</div>
+    <div>基于麦当劳中国官方 MCP（mcp.mcd.cn）能力开发</div>
+    <div>参赛：1024 程序员节 · 麦当劳程序员创意开发大赛</div>
+    <div>本页由 WorkBuddy 开发 · 完整对话记录见仓库 workbuddy.md</div>
+    <a class="star-btn" href="https://github.com/M-China/mcd-developer-innovation-challenge" target="_blank" rel="noopener">⭐ 大赛主页 / 来 GitHub 看源码</a>
+  </footer>
+</div>
+
+<script>
+/* ================= 数据（演示层，接入 MCP 后替换为真实数据） ================= */
+var STATES = [
+  {id:"monday",   label:"周一综合症", yi:"麦辣鸡翅",   yiWhy:"以辣解忧，辣醒昏迷的周一",   ji:"白开水",     jiWhy:"越喝越淡，周一忌淡",           pkg:"monday"},
+  {id:"wc",       label:"带薪如厕",   yi:"小份薯条",   yiWhy:"悄无声息，体面摸鱼",         ji:"麦辣鸡腿堡", jiWhy:"香味太冲，容易暴露",           pkg:"wc"},
+  {id:"lieflat",  label:"周末躺平",   yi:"麦乐送全家桶", yiWhy:"床以外的地方都是远方",     ji:"出门堂食",   jiWhy:"躺平人，今天不出门",           pkg:"lieflat"},
+  {id:"diet",     label:"减肥第三天", yi:"玉米杯+无糖可乐", yiWhy:"低卡续命，心理安慰拉满",  ji:"巧克力甜筒", jiWhy:"第三天的意志，经不起试探",     pkg:"diet"},
+  {id:"breakup",  label:"失恋第7天",  yi:"双层吉士堡", yiWhy:"双倍芝士，填补空心",         ji:"双人套餐",   jiWhy:"前任的座位，先空着",           pkg:"breakup"},
+  {id:"overtime", label:"加班夜归人", yi:"24h热咖啡",  yiWhy:"深夜续命，麦门收留",         ji:"空腹入睡",   jiWhy:"胃里空空，心里更空",           pkg:"overtime"},
+  {id:"payday",   label:"发工资日",   yi:"巨无霸套餐", yiWhy:"赚钱不花，过期作废",         ji:"查余额",     jiWhy:"快乐经不起对账",               pkg:"payday"},
+  {id:"exam",     label:"考前突击",   yi:"麦满分早餐", yiWhy:"一顿满分，科科满分",         ji:"甜筒",       jiWhy:"化得太快，知识点也是",           pkg:"exam"}
+];
+
+var PACKAGES = {
+  monday:   {name:"周一清醒包",   items:[["麦辣鸡腿堡",18.5],["小份薯条",7.0],["可口可乐(中)",7.5]],  price:33.0},
+  wc:       {name:"摸鱼安静包",   items:[["小份薯条",7.0],["无糖可乐(中)",7.5],["玉米杯",6.5]],        price:21.0},
+  lieflat:  {name:"躺平全家桶",   items:[["麦乐送全家桶",64.0],["巧克力甜筒",6.0],["可乐(中)",7.5]],  price:77.5},
+  diet:     {name:"减脂安慰餐",   items:[["玉米杯",6.5],["无糖可乐(中)",7.5],["苹果片",6.0]],          price:20.0},
+  breakup:  {name:"疗愈双倍包",   items:[["双层吉士堡",15.5],["麦乐鸡(5块)",12.0],["可乐(中)",7.5]],   price:35.0},
+  overtime: {name:"深夜疗愈包",   items:[["热咖啡(中)",13.0],["麦乐鸡(5块)",12.0]],                    price:25.0},
+  payday:   {name:"发工资狂欢包", items:[["巨无霸套餐(大)",42.0],["麦辣鸡翅(2块)",13.0],["甜筒",6.0]], price:61.0},
+  exam:     {name:"满分冲刺包",   items:[["麦满分(猪柳蛋)",15.0],["鲜煮咖啡(中)",10.0],["薯饼",6.0]],   price:31.0}
+};
+
+var FORTUNES = [
+  {lvl:"大吉", tag:"麦门庇佑 · 诸事皆宜", poem:"麦门庇佑，薯条镇楼，横财就手"},
+  {lvl:"中吉", tag:"运势回甘 · 宜趁热打铁", poem:"可乐去冰，烦恼清零，万事可期"},
+  {lvl:"小吉", tag:"小确幸 · 稳住别慌",   poem:"甜筒压惊，明日再战，稳住别慌"},
+  {lvl:"半吉", tag:"喜忧参半 · 心态要平", poem:"麦辣开胃，运势回甘，先吃再说"},
+  {lvl:"平",   tag:"平平淡淡 · 养生局",   poem:"玉米杯养生，苟住就是胜利"},
+  {lvl:"凶",   tag:"大凶 · 但有解法",     poem:"今日大凶，宜呼友共食，可破"}
+];
+
+/* ================= 工具 ================= */
+function mulberry32(a){
+  return function(){
+    a|=0;a=a+0x6D2B79F5|0;
+    var t=Math.imul(a^a>>>15,1|a);
+    t=t+Math.imul(t^t>>>7,61|t)^t;
+    return((t^t>>>14)>>>0)/4294967296;
+  };
+}
+var CN_NUM=["〇","一","二","三","四","五","六","七","八","九"];
+var CN_MONTH=["","一","二","三","四","五","六","七","八","九","十","十一","十二"];
+function cnDay(d){
+  if(d===10)return"初十";if(d===20)return"二十";if(d===30)return"三十";
+  var t=Math.floor(d/10),u=d%10;
+  var tens=t===1?"十":t===2?"廿":CN_NUM[t]+"十";
+  return tens+(u?CN_NUM[u]:"");
+}
+(function(){
+  var d=new Date();
+  var y=String(d.getFullYear()).split("").map(function(c){return CN_NUM[+c];}).join("");
+  var week=["日","一","二","三","四","五","六"][d.getDay()];
+  document.getElementById("dateLine").textContent=
+    "麦历 "+y+"年 · "+CN_MONTH[d.getMonth()+1]+"月"+cnDay(d.getDate())+" · 星期"+week;
+})();
+
+/* ================= 状态 chips ================= */
+var selected={};
+var chipsBox=document.getElementById("chips");
+STATES.forEach(function(s){
+  var b=document.createElement("button");
+  b.className="chip";b.textContent=s.label;b.dataset.id=s.id;
+  b.onclick=function(){
+    if(selected[s.id]){delete selected[s.id];b.classList.remove("on");}
+    else{selected[s.id]=s;b.classList.add("on");}
+  };
+  chipsBox.appendChild(b);
+});
+
+/* ================= 转盘 ================= */
+var WHEEL_ITEMS=["巨无霸","麦辣鸡腿堡","薯条","麦乐鸡","甜筒","可乐","玉米杯","板烧鸡腿堡"];
+var wheel=document.getElementById("wheel");
+(function(){
+  var R=96;
+  WHEEL_ITEMS.forEach(function(name,i){
+    var angle=(360/WHEEL_ITEMS.length)*i;
+    var span=document.createElement("span");
+    span.className="wheel-item";
+    span.textContent=name;
+    span.style.transform="rotate("+angle+"deg) translate("+(R+16)+"px) rotate("+(-angle)+"deg) translate(-50%,-50%)";
+    wheel.appendChild(span);
+  });
+})();
+
+/* ================= 运势逻辑（按日锁定） ================= */
+var todayKey=String(new Date().getFullYear())+"-"+(new Date().getMonth()+1)+"-"+new Date().getDate();
+function drawFortune(){
+  var ids=Object.keys(selected);
+  var d=new Date();
+  var seed=d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate();
+  ids.forEach(function(id){for(var i=0;i<id.length;i++)seed+=id.charCodeAt(i);});
+  var rnd=mulberry32(seed);
+  var f=FORTUNES[Math.floor(rnd()*FORTUNES.length)];
+  var s=ids.length?selected[ids[Math.floor(rnd()*ids.length)]]:STATES[Math.floor(rnd()*STATES.length)];
+  var pkg=PACKAGES[s.pkg];
+  return{f:f,s:s,pkg:pkg};
+}
+function showResult(){
+  var r=drawFortune();
+  document.getElementById("rLvl").textContent=r.f.lvl;
+  document.getElementById("rTag").textContent=r.f.tag;
+  document.getElementById("rYi").textContent=r.s.yi;
+  document.getElementById("rYiWhy").textContent=r.s.yiWhy;
+  document.getElementById("rJi").textContent=r.s.ji;
+  document.getElementById("rJiWhy").textContent=r.s.jiWhy;
+  document.getElementById("rPoem").textContent="「 "+r.f.poem+" 」";
+  var html="";
+  r.pkg.items.forEach(function(it){
+    html+='<div class="pkg-item"><span>'+it[0]+'</span><span class="p">¥'+it[1].toFixed(1)+'</span></div>';
+  });
+  document.getElementById("rPkg").innerHTML=html;
+  document.getElementById("rPrice").textContent=r.pkg.price.toFixed(1);
+  var box=document.getElementById("result");
+  box.classList.remove("show");void box.offsetWidth;box.classList.add("show");
+  box.scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+/* ================= 开转 ================= */
+var spinBtn=document.getElementById("spinBtn");
+var lockNote=document.getElementById("lockNote");
+var rotation=0, spinning=false;
+spinBtn.onclick=function(){
+  if(spinning)return;
+  spinning=true;spinBtn.disabled=true;
+  lockNote.textContent="罗盘转动中，吉凶自现…";
+  rotation+=1800+Math.floor(Math.random()*360);
+  wheel.style.transform="rotate("+rotation+"deg)";
+  setTimeout(function(){
+    showResult();
+    spinning=false;spinBtn.disabled=false;
+    lockNote.textContent="今日运势已定，罗盘明日复位 · 换状态可另开一签";
+  },2400);
+};
+
+/* ================= 复制分享 ================= */
+var shareBtn=document.getElementById("shareBtn");
+var shareBtnText="📋 复制今日签文，去朋友圈麦一个";
+shareBtn.onclick=function(){
+  var r=drawFortune();
+  var txt="【麦门老黄历 · 今日签】\n"+todayKey+" · "+r.f.lvl+"\n宜："+r.s.yi+"（"+r.s.yiWhy+"）\n忌："+r.s.ji+"（"+r.s.jiWhy+"）\n签文：「 "+r.f.poem+" 」\n开运套餐："+r.pkg.name+"\n—— 麦门保佑 🍔";
+  function done(){
+    shareBtn.textContent="✅ 已复制，去朋友圈麦一个";
+    setTimeout(function(){shareBtn.textContent=shareBtnText;},2000);
+  }
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(done).catch(function(){fallbackCopy(txt);done();});
+  }else{fallbackCopy(txt);done();}
+};
+function fallbackCopy(t){
+  var ta=document.createElement("textarea");
+  ta.value=t;ta.style.position="fixed";ta.style.opacity="0";
+  document.body.appendChild(ta);ta.select();
+  try{document.execCommand("copy");}catch(e){}
+  document.body.removeChild(ta);
+}
+
+/* ================= 木鱼彩蛋 ================= */
+var muyu=document.getElementById("muyuBtn"), meritCount=0;
+var MERIT_TEXTS=["功德 +1","功德 +1","麦门 +1s","功德 +1","金身+1","功德 +1","麦门永存 +1"];
+muyu.onclick=function(e){
+  meritCount++;
+  var m=document.createElement("div");
+  m.className="merit";
+  m.textContent=MERIT_TEXTS[meritCount%MERIT_TEXTS.length];
+  var rect=muyu.getBoundingClientRect();
+  m.style.left=(rect.left+rect.width/2)+"px";
+  m.style.top=(rect.top-6)+"px";
+  m.style.position="fixed";
+  document.body.appendChild(m);
+  setTimeout(function(){m.remove();},1100);
+};
+</script>
+</body>
+</html>
