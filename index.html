@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="format-detection" content="telephone=no,email=no,address=no">
+<meta name="theme-color" content="#b5392c">
 <meta name="description" content="麦门老黄历：今天宜吃什么？让黄历决定。麦当劳 MCP 驱动的赛博玄学点餐 Skill。">
 <title>麦门老黄历 · 今日宜麦麦</title>
 <style>
@@ -268,6 +271,34 @@ button{font-family:inherit;color:inherit}
 }
 .share-hint{font-size:var(--fs-caption);color:var(--ink-300);text-align:center;margin-top:var(--sp-3)}
 
+/* ============ 云服务数据条 ============ */
+.cloud-strip{display:flex;gap:var(--sp-2);flex-wrap:wrap;margin-top:var(--sp-3);font-size:var(--fs-caption);color:var(--ink-300)}
+.cloud-pill{
+  display:inline-flex;align-items:center;gap:4px;
+  background:var(--paper-50);border:1px solid var(--paper-300);border-radius:var(--r-pill);
+  padding:2px var(--sp-3);letter-spacing:1px;white-space:nowrap;
+}
+.cloud-pill b{color:var(--red-500);font-weight:700}
+.cloud-pill.err{border-color:var(--indigo-600);color:var(--indigo-600)}
+.cloud-pill.err b{color:var(--indigo-600)}
+
+/* ============ 全站最新签运 ============ */
+.feed-list{display:flex;flex-direction:column;gap:var(--sp-2)}
+.feed-item{
+  display:flex;align-items:center;gap:var(--sp-3);
+  background:var(--paper-50);border:1px dashed var(--paper-300);border-radius:var(--r-cell);
+  padding:var(--sp-2) var(--sp-3);font-size:var(--fs-aux);line-height:1.5;
+}
+.feed-item .f-lvl{font-family:var(--font-kai);font-weight:700;color:var(--red-500);flex:0 0 auto;min-width:42px;text-align:center}
+.feed-item .f-lvl.f-zhongji{color:var(--gold-700)}
+.feed-item .f-lvl.f-xiong{color:var(--indigo-600)}
+.feed-item .f-txt{flex:1;min-width:0}
+.feed-item .f-txt .y{color:var(--red-500);font-weight:700}
+.feed-item .f-txt .j{color:var(--ink-500);font-weight:700}
+.feed-item .f-state{font-size:var(--fs-caption);color:var(--ink-300);margin-top:2px}
+.feed-item .f-date{font-size:var(--fs-caption);color:var(--ink-300);flex:0 0 auto}
+.feed-empty{font-size:var(--fs-aux);color:var(--ink-300);text-align:center;padding:var(--sp-4);border:1px dashed var(--paper-300);border-radius:var(--r-cell)}
+
 /* ============ 木鱼彩蛋 ============ */
 .muyu{margin-top:var(--sp-8);text-align:center;position:relative}
 .muyu-btn{border:none;background:transparent;cursor:pointer;font-size:44px;line-height:1;transition:transform 80ms;min-width:48px;min-height:48px}
@@ -319,6 +350,24 @@ footer a{color:var(--red-500);text-decoration:none;border-bottom:1px dotted var(
   *,*::before,*::after{animation:none !important;transition:none !important}
 }
 
+/* ============ 小屏手机适配（≤360px：iPhone SE / 小安卓） ============ */
+@media (max-width:360px){
+  :root{
+    --fs-display:44px; --fs-hero:34px; --fs-lvl:24px; --fs-sub:17px;
+  }
+  .page{padding-left:var(--sp-3);padding-right:var(--sp-3)}
+  .almanac-head{padding:var(--sp-5) var(--sp-4) var(--sp-4)}
+  .wheel{width:200px;height:200px}
+  .spin-btn{padding:var(--sp-3) 32px var(--sp-3) 38px;letter-spacing:4px}
+  .tb-btn{padding:var(--sp-2) var(--sp-3);font-size:var(--fs-caption);gap:2px}
+  .feed-item{gap:var(--sp-2);padding:var(--sp-2)}
+  .cloud-strip{gap:var(--sp-1)}
+  .hero-yiji{gap:var(--sp-4)}
+}
+/* 拇指条超窄兜底：允许横向滚动，绝不挤出屏幕 */
+.thumb-bar{overflow-x:auto;scrollbar-width:none}
+.thumb-bar::-webkit-scrollbar{display:none}
+
 /* ============ 桌面端 ============ */
 @media (min-width:481px){
   body{padding-bottom:var(--sp-10)}
@@ -348,6 +397,12 @@ footer a{color:var(--red-500);text-decoration:none;border-bottom:1px dotted var(
       </div>
     </div>
     <div class="hero-sub">今日运势 <em>「麦门庇佑」</em> · 选状态，转罗盘，吉凶自现</div>
+    <div class="cloud-strip" id="cloudStrip" aria-live="polite">
+      <span class="cloud-pill" id="pillDraws">☁️ 今日全站已抽 <b>—</b> 签</span>
+      <span class="cloud-pill" id="pillMerit">🪷 全站功德 <b>—</b></span>
+      <span class="cloud-pill" id="pillMine">我的功德 <b>0</b></span>
+      <span class="cloud-pill err" id="pillErr" hidden>☁️ 云端暂不可用，功能不受影响</span>
+    </div>
     <div class="shichen" id="shichen" aria-hidden="true"></div>
     <p class="sr-only" id="srShichen" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)"></p>
   </section>
@@ -418,10 +473,16 @@ footer a{color:var(--red-500);text-decoration:none;border-bottom:1px dotted var(
           零依赖 Skill · 无 Token 也能 --demo 玩
         </div>
       </div>
-      <div class="share-watermark">麦门保佑 · 截图发朋友圈</div>
+      <div class="share-watermark">麦门保佑 · 截图存签</div>
     </div>
-    <p class="share-hint">竖版卡片为截图优化 · 长按保存或直接截图分享</p>
+    <p class="share-hint">竖版卡片为截图优化 · 长按保存或直接截图</p>
   </section>
+
+  <!-- 全站最新签运（云服务实时数据） -->
+  <h2 class="section-title" id="feedTitle">全站最新签运</h2>
+  <div class="feed-list" id="feedList" aria-live="polite">
+    <div class="feed-empty">签运加载中…</div>
+  </div>
 
   <!-- 木鱼彩蛋 -->
   <div class="muyu">
@@ -443,10 +504,11 @@ footer a{color:var(--red-500);text-decoration:none;border-bottom:1px dotted var(
 <nav class="thumb-bar" aria-label="快捷操作">
   <button class="tb-btn primary" id="tbSpin">🪔 开转</button>
   <button class="tb-btn" id="tbCopy" disabled>📋 复制签文</button>
-  <button class="tb-btn" id="tbShare" disabled>🎴 分享卡</button>
+  <button class="tb-btn" id="tbShare" disabled>🎴 签卡</button>
   <button class="tb-btn" id="tbMuyu">🪷 木鱼</button>
 </nav>
 
+<script src="https://cdn.jsdelivr.net/npm/@tencent-ai/workbuddy-cloud-sdk@dev/lib/index.global.js"></script>
 <script>
 /* ================= 数据（与 Skill 引擎同源，演示层） ================= */
 var STATES = [
@@ -510,7 +572,7 @@ function cnDay(d){
 }
 function todayKey(){
   var d=new Date();
-  return d.getFullYear()+"-"+d.getMonth()+1+"-"+d.getDate();
+  return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
 }
 
 /* ================= 时辰条 ================= */
@@ -565,6 +627,132 @@ var wheel=document.getElementById("wheel");
     wheel.appendChild(span);
   });
 })();
+
+/* ================= 云服务接入（WorkBuddy Cloud Service） ================= */
+/* publicConfig —— 仅含可安全公开的前端配置；publishableKey 不携带任何权限，服务端按 Origin 精确匹配 */
+var CLOUD_CONFIG = {
+  endpoint: "https://mcd-almanac.app.workbuddy.host",
+  oauthRelayBaseUrl: "https://www.workbuddy.cn/v2/as/genie-baas/oauth",
+  publishableKey: "wbpk_2eBlfqdVbqqmdEmOIJhTbn_lxZybq4aB0gF8EA2tl6Gi872tMPFK0iD"
+};
+var cloud = null, cloudReady = false;
+try {
+  if (window.WorkBuddyCloud && WorkBuddyCloud.createWorkBuddyCloud) {
+    cloud = WorkBuddyCloud.createWorkBuddyCloud(CLOUD_CONFIG);
+    cloudReady = true;
+  }
+} catch (e) { cloud = null; cloudReady = false; }
+
+/* 游客标识：localStorage 随机 UUID，非 PII，仅用于「我的功德」个人计数 */
+function visitorId(){
+  var id = null;
+  try { id = localStorage.getItem("mcd_almanac_visitor"); } catch (e) {}
+  if (!id) {
+    id = "v_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 10);
+    try { localStorage.setItem("mcd_almanac_visitor", id); } catch (e) {}
+  }
+  return id;
+}
+
+function cloudDown(msg) {
+  var pill = document.getElementById("pillErr");
+  if (pill) {
+    pill.hidden = false;
+    if (msg) pill.textContent = "☁️ " + msg;
+  }
+}
+function cloudUp() {
+  var pill = document.getElementById("pillErr");
+  if (pill) pill.hidden = true;
+}
+function setPill(id, val) {
+  var el = document.getElementById(id);
+  if (el) { var b = el.querySelector("b"); if (b) b.textContent = val; }
+}
+
+/* 刷新全站统计 + 最新签运 feed */
+async function refreshStats() {
+  if (!cloudReady) { cloudDown(); return; }
+  try {
+    var tk = todayKey();
+    var vid = visitorId();
+    var results = await Promise.all([
+      cloud.database.from("fortune_draws").select("*", { count: "exact", head: true }).eq("draw_date", tk),
+      cloud.database.from("merit_knocks").select("*", { count: "exact", head: true }),
+      cloud.database.from("merit_knocks").select("*", { count: "exact", head: true }).eq("visitor_id", vid),
+      cloud.database.from("fortune_draws")
+        .select("draw_date,state_label,fortune_level,yi_item,ji_item")
+        .order("created_at", { ascending: false })
+        .limit(6)
+    ]);
+    for (var i = 0; i < results.length; i++) {
+      if (results[i] && results[i].error) throw results[i].error;
+    }
+    cloudUp();
+    setPill("pillDraws", results[0].count == null ? 0 : results[0].count);
+    setPill("pillMerit", results[1].count == null ? 0 : results[1].count);
+    setPill("pillMine", results[2].count == null ? 0 : results[2].count);
+    renderFeed(results[3].data || []);
+  } catch (e) {
+    cloudDown();
+  }
+}
+
+function renderFeed(rows) {
+  var box = document.getElementById("feedList");
+  if (!box) return;
+  if (!rows.length) {
+    box.innerHTML = '<div class="feed-empty">还没有人抽签，来当全站第一签？</div>';
+    return;
+  }
+  var html = "";
+  rows.forEach(function (r) {
+    var cls = "f-lvl" + (r.fortune_level === "中吉" ? " f-zhongji" : r.fortune_level === "凶" ? " f-xiong" : "");
+    html += '<div class="feed-item">' +
+      '<span class="' + cls + '">' + (r.fortune_level || "?") + '</span>' +
+      '<span class="f-txt">宜 <span class="y">' + (r.yi_item || "麦麦") + '</span> · 忌 <span class="j">' + (r.ji_item || "emo") + '</span>' +
+      '<span class="f-state">' + (r.state_label || "") + ' · ' + (r.draw_date || "") + '</span></span>' +
+      '</div>';
+  });
+  box.innerHTML = html;
+}
+
+/* 出签入库 */
+async function recordDraw(r) {
+  if (!cloudReady) return;
+  try {
+    var res = await cloud.database.from("fortune_draws").insert({
+      draw_date: todayKey(),
+      state_label: r.s.label,
+      fortune_level: r.f.lvl,
+      yi_item: r.s.yi,
+      ji_item: r.s.ji,
+      poem: r.f.poem,
+      package_name: r.pkg.name
+    }).select();
+    if (res.error) throw res.error;
+    refreshStats();
+  } catch (e) {
+    cloudDown("签已出炉，云端存档失败");
+  }
+}
+
+/* 敲木鱼功德入库 */
+async function recordKnock() {
+  if (!cloudReady) return;
+  try {
+    var res = await cloud.database.from("merit_knocks").insert({
+      visitor_id: visitorId()
+    }).select();
+    if (res.error) throw res.error;
+    refreshStats();
+  } catch (e) {
+    cloudDown("功德暂未入账，请稍后再敲");
+  }
+}
+
+/* 页面就绪：拉一次全站统计 */
+if (cloudReady) { refreshStats(); } else { cloudDown(); }
 
 /* ================= 运势逻辑（按日锁定，与 Skill 引擎同规则） ================= */
 function drawFortune(){
@@ -630,6 +818,7 @@ function showResult(){
   document.getElementById("tbCopy").disabled=false;
   document.getElementById("tbShare").disabled=false;
   box.scrollIntoView({behavior:"smooth",block:"start"});
+  recordDraw(r); /* 云服务：抽签记录入库 */
 }
 
 /* ================= 开转 ================= */
@@ -689,6 +878,7 @@ var meritCount=0;
 var MERIT_TEXTS=["功德 +1","功德 +1","麦门 +1s","功德 +1","金身+1","功德 +1","麦门永存 +1"];
 function knock(){
   meritCount++;
+  recordKnock(); /* 云服务：功德记录入库 */
   var m=document.createElement("div");
   m.className="merit";
   m.textContent=MERIT_TEXTS[meritCount%MERIT_TEXTS.length];
