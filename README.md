@@ -1,7 +1,7 @@
 # 🪔 麦门老黄历 · mcd-almanac
 
 > **今天宜吃什么？让黄历决定。**
-> 麦当劳 MCP 驱动的「赛博玄学」点餐 Skill —— 1024 程序员节 · 麦当劳程序员创意开发大赛参赛作品
+> 麦当劳 MCP 驱动的「赛博玄学」点餐 Skill —— WorkBuddy「1024 造物挑战」程序员节应用创作大赛参赛作品
 
 把中国互联网两大显学——**老黄历**和**麦门**——焊在一起：
 
@@ -13,7 +13,7 @@
 
 | 亮点 | 说明 |
 |---|---|
-| 🔴 蓝海创意 | 近 530 份参赛申请里，唯一的「玄学运势」向作品 |
+| 🔴 蓝海创意 | 同场作品里唯一的「玄学运势」向作品 |
 | 📅 今日一签，明日复位 | 运势按「日期 + 状态」锁定，每天回来都有新签 |
 | 🎫 真实数据改运 | 今日可领优惠券命中「宜」的事项，运势当场升档 |
 | 🥗 真实营养挂钩 | 宜/忌餐品自动挂官方营养数据（热量/蛋白质） |
@@ -24,7 +24,7 @@
 ## 🚀 30 秒体验（无需 Token）
 
 ```bash
-git clone https://github.com/<你的用户名>/mcd-almanac.git
+git clone https://github.com/gsgsmm/mcd-almanac.git
 cd mcd-almanac
 python LaoHuangLi.py --state 周一综合症 --demo
 ```
@@ -85,19 +85,23 @@ MaiMenLaoHuangLi/
 ├── McpKeHu.py              # MCP 客户端：零依赖 Streamable HTTP，兼容 JSON/SSE
 ├── CanPinShuJu.py          # 演示数据：无 Token 时的离线替代（结构与真实返回一致）
 ├── CeShi.py                # 离线自测：19 项断言，python CeShi.py 一键跑
-├── MCP_INTEGRATION.md      # MCP 集成说明（参赛必需文件）
-├── CONTEST_DECLARATION.md  # 官方参赛声明（原版未改）
+├── MCP_INTEGRATION.md      # MCP 集成说明
+├── CONTEST_DECLARATION.md  # 参赛原创性声明
 └── workbuddy.md            # WorkBuddy 开发记录
 ```
 
 - Python 3.9+，**零第三方依赖**，`python CeShi.py` 可离线验证
 - 单工具调用失败自动降级，不影响主流程
+- 网页版额外接入 WorkBuddy 云服务：抽签记录与功德数据实时入库，全站签运与功德池可共享
 
 ## 🏆 参赛信息
 
-- 大赛：1024 程序员节 · 麦当劳程序员创意开发大赛（[官方仓库](https://github.com/M-China/mcd-developer-innovation-challenge)）
-- 方向：基于麦当劳中国官方 MCP（[mcp.mcd.cn](https://github.com/M-China/mcd-mcp-server)）的创意 Skill
-- 在线 Demo：GitHub Pages（见仓库 About 链接）
+- 大赛：**WorkBuddy「1024 造物挑战」程序员节应用创作大赛**
+- 作品：麦门老黄历 · 今日宜麦麦（Web 应用）
+- 方向：基于麦当劳中国官方 MCP（[mcp.mcd.cn](https://github.com/M-China/mcd-mcp-server)）的创意 Skill + 赛博黄历玩法
+- 在线体验：<https://mcd-almanac.app.workbuddy.host/?sharecode=NNYZ3O6XHK>
+  （若在微信内打开提示「请在浏览器中打开」，长按复制链接到 Safari / Chrome 即可正常体验）
+- 源码：本仓库全量开源，零依赖 Python + 单文件网页，Fork 即跑
 
 ## ⚠️ 免责声明
 
