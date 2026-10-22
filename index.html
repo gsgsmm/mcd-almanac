@@ -3,230 +3,339 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="description" content="麦门老黄历：今天宜吃什么？让黄历决定。麦当劳 MCP 驱动的赛博玄学点餐 Skill。">
 <title>麦门老黄历 · 今日宜麦麦</title>
 <style>
-  :root{
-    --paper:#f3ead3;
-    --paper-deep:#eadfc0;
-    --card:#fdf8ea;
-    --red:#b5392c;
-    --red-deep:#8e2b21;
-    --ink:#3a2f24;
-    --ink-soft:#7a6c58;
-    --gold:#c9a227;
-    --line:#d8c9a3;
-  }
-  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  body{
-    background:var(--paper);
-    color:var(--ink);
-    font-family:"Songti SC","STSong","SimSun","Noto Serif SC",serif;
-    min-height:100vh;
-    background-image:
-      radial-gradient(circle at 20% 10%, rgba(201,162,39,.06), transparent 40%),
-      radial-gradient(circle at 85% 90%, rgba(181,57,44,.05), transparent 45%);
-  }
-  .page{max-width:480px;margin:0 auto;padding:20px 16px 60px;position:relative}
+/* ============================================================
+   麦门老黄历 · Design Tokens（UI 设计系统 v2.0 · 像素君）
+   ============================================================ */
+:root{
+  /* 色彩 —— 宣纸 / 朱红 / 墨 / 金 */
+  --paper-50:#faf5ea; --paper-100:#f3ead3; --paper-200:#eadfc0; --paper-300:#d8c9a3;
+  --red-500:#b5392c; --red-600:#9c2f24; --red-700:#8e2b21;
+  --gold-500:#c9a227; --gold-700:#a87c1f;
+  --ink-500:#3a2f24; --ink-300:#7a6c58;
+  --indigo-600:#3b4a6b;
 
-  /* ===== 顶部 ===== */
-  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
-  .brand{font-size:13px;letter-spacing:2px;color:var(--ink-soft)}
-  .brand b{color:var(--red);font-weight:700}
-  .badge-1024{
-    font-size:11px;color:var(--paper);background:var(--red);
-    padding:4px 10px;border-radius:999px;letter-spacing:1px;
-    box-shadow:0 2px 6px rgba(142,43,33,.25);
-  }
+  /* 字体 */
+  --font-song:"Songti SC","STSong","SimSun","Noto Serif SC",serif;
+  --font-kai:"Kaiti SC","KaiTi","STKaiti",cursive;
 
-  /* ===== 黄历头 ===== */
-  .almanac-head{
-    background:linear-gradient(180deg,var(--card),var(--paper-deep));
-    border:2px solid var(--red-deep);
-    border-radius:14px;
-    padding:22px 18px 18px;
-    position:relative;
-    box-shadow:0 6px 20px rgba(58,47,36,.10);
-    overflow:hidden;
-  }
-  .almanac-head::before{
-    content:"麦门永存";
-    position:absolute;top:14px;right:12px;
-    writing-mode:vertical-rl;
-    font-size:12px;letter-spacing:4px;color:var(--red);
-    opacity:.85;font-family:"Kaiti SC","KaiTi","STKaiti",cursive;
-  }
-  .date-line{font-size:14px;color:var(--ink-soft);letter-spacing:1px;margin-bottom:10px}
-  .hero-yiji{display:flex;align-items:flex-end;gap:18px}
-  .hero-item{display:flex;align-items:baseline;gap:8px}
-  .hero-label{font-size:15px;color:var(--ink-soft);font-family:"Kaiti SC","KaiTi",cursive}
-  .hero-word{font-size:52px;font-weight:700;line-height:1}
-  .hero-word.yi{color:var(--red)}
-  .hero-word.ji{color:var(--ink)}
-  .hero-sub{margin-top:10px;font-size:13px;color:var(--ink-soft)}
-  .hero-sub em{font-style:normal;color:var(--gold);font-weight:700}
+  /* 字阶 */
+  --fs-caption:12px; --fs-aux:13px; --fs-body:14px; --fs-strong:16px;
+  --fs-sub:19px; --fs-title:22px; --fs-lvl:28px; --fs-hero:40px; --fs-display:52px;
 
-  /* ===== 状态选择 ===== */
-  .section-title{
-    display:flex;align-items:center;gap:10px;
-    font-size:15px;font-weight:700;margin:26px 0 12px;letter-spacing:1px;
-  }
-  .section-title::before,.section-title::after{
-    content:"";height:1px;flex:1;background:var(--line);
-  }
-  .chips{display:flex;flex-wrap:wrap;gap:8px}
-  .chip{
-    border:1.5px solid var(--line);background:var(--card);color:var(--ink);
-    font-size:13px;padding:8px 14px;border-radius:999px;cursor:pointer;
-    font-family:inherit;transition:all .18s;
-  }
-  .chip:active{transform:scale(.96)}
-  .chip.on{
-    border-color:var(--red);background:var(--red);color:#fdf8ea;
-    box-shadow:0 3px 10px rgba(181,57,44,.28);
-  }
+  /* 间距（4px 基频） */
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:20px; --sp-6:24px;
+  --sp-8:32px; --sp-10:40px;
 
-  /* ===== 转盘 ===== */
-  .wheel-wrap{display:flex;flex-direction:column;align-items:center;margin-top:22px}
-  .wheel{
-    width:220px;height:220px;border-radius:50%;
-    position:relative;
-    background:
-      radial-gradient(circle, var(--card) 0 34%, var(--paper-deep) 34% 100%);
-    border:3px solid var(--red-deep);
-    box-shadow:
-      0 0 0 6px var(--paper),
-      0 0 0 8px var(--gold),
-      0 10px 26px rgba(58,47,36,.18);
-    transition:transform 2.4s cubic-bezier(.17,.67,.21,1.01);
-    margin:14px 0;
-  }
-  .wheel-item{
-    position:absolute;left:50%;top:50%;
-    font-size:13px;color:var(--ink);white-space:nowrap;
-    transform-origin:0 0;
-    font-weight:700;
-  }
-  .wheel-needle{
-    position:absolute;left:50%;top:-14px;transform:translateX(-50%);
-    width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;
-    border-top:16px solid var(--red);filter:drop-shadow(0 2px 3px rgba(0,0,0,.25));
-    z-index:2;
-  }
-  .wheel-center{
-    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
-    width:76px;height:76px;border-radius:50%;
-    background:radial-gradient(circle at 35% 30%, #d4523f, var(--red-deep));
-    color:#fdf8ea;display:flex;align-items:center;justify-content:center;
-    font-size:15px;font-weight:700;letter-spacing:2px;
-    box-shadow:inset 0 2px 6px rgba(255,255,255,.25), 0 3px 8px rgba(142,43,33,.4);
-    font-family:"Kaiti SC","KaiTi",cursive;
-  }
-  .spin-btn{
-    margin-top:6px;border:none;cursor:pointer;
-    background:linear-gradient(180deg,#c8463a,var(--red-deep));
-    color:#fdf8ea;font-size:17px;font-weight:700;letter-spacing:6px;
-    padding:13px 44px 13px 50px;border-radius:999px;font-family:inherit;
-    box-shadow:0 5px 16px rgba(142,43,33,.35);
-    transition:transform .15s;
-  }
-  .spin-btn:active{transform:scale(.95)}
-  .spin-btn:disabled{opacity:.55;cursor:not-allowed}
-  .lock-note{font-size:12px;color:var(--ink-soft);margin-top:10px;min-height:16px}
+  /* 圆角 */
+  --r-chip:8px; --r-cell:10px; --r-card:14px; --r-pill:999px;
 
-  /* ===== 运势结果卡 ===== */
-  .result{
-    margin-top:26px;background:var(--card);
-    border:2px solid var(--red-deep);border-radius:14px;
-    overflow:hidden;box-shadow:0 6px 20px rgba(58,47,36,.12);
-    display:none;
-  }
-  .result.show{display:block;animation:cardIn .5s cubic-bezier(.2,.9,.3,1.2)}
-  @keyframes cardIn{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:none}}
-  .result-head{
-    background:linear-gradient(135deg,var(--red),var(--red-deep));
-    color:#fdf8ea;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;
-  }
-  .result-head .lvl{font-size:22px;font-weight:700;letter-spacing:3px;font-family:"Kaiti SC","KaiTi",cursive}
-  .result-head .tag{font-size:12px;opacity:.92;letter-spacing:1px}
-  .result-body{padding:16px}
-  .yiji-row{display:flex;gap:12px;margin-bottom:12px}
-  .yiji-cell{flex:1;background:var(--paper);border:1px dashed var(--line);border-radius:10px;padding:12px}
-  .yiji-cell .k{font-size:14px;font-weight:700;margin-bottom:4px}
-  .yiji-cell.yi .k{color:var(--red)}
-  .yiji-cell.ji .k{color:var(--ink)}
-  .yiji-cell .v{font-size:16px;font-weight:700;line-height:1.35}
-  .yiji-cell .w{font-size:12px;color:var(--ink-soft);margin-top:4px;line-height:1.5}
-  .poem{
-    text-align:center;font-family:"Kaiti SC","KaiTi","STKaiti",cursive;
-    font-size:19px;color:var(--red-deep);letter-spacing:2px;
-    padding:14px 8px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
-    margin:6px 0 14px;
-  }
-  .pkg-title{font-size:13px;font-weight:700;color:var(--ink-soft);letter-spacing:2px;margin-bottom:8px}
-  .pkg-item{display:flex;justify-content:space-between;font-size:14px;padding:6px 0;border-bottom:1px dotted var(--line)}
-  .pkg-item:last-of-type{border-bottom:none}
-  .pkg-item .p{color:var(--ink-soft)}
-  .pkg-total{display:flex;justify-content:space-between;align-items:baseline;margin-top:10px;padding-top:10px;border-top:2px solid var(--red-deep)}
-  .pkg-total .l{font-size:13px;color:var(--ink-soft)}
-  .pkg-total .r{font-size:13px;color:var(--ink-soft)}
-  .pkg-total .r b{font-size:22px;color:var(--red)}
-  .mock-note{font-size:11px;color:var(--ink-soft);text-align:center;margin-top:10px;line-height:1.6}
-  .share-btn{
-    display:block;width:100%;margin-top:14px;border:1.5px solid var(--red);
-    background:transparent;color:var(--red);font-size:14px;font-weight:700;
-    padding:11px;border-radius:10px;cursor:pointer;font-family:inherit;letter-spacing:2px;
-  }
-  .share-btn:active{background:var(--red);color:#fdf8ea}
+  /* 动效 */
+  --ease-wheel:cubic-bezier(.17,.67,.21,1.01);
+  --dur-fast:150ms; --dur-normal:300ms;
+}
 
-  /* ===== 木鱼彩蛋 ===== */
-  .muyu{
-    margin-top:34px;text-align:center;position:relative;
-  }
-  .muyu-btn{
-    border:none;background:transparent;cursor:pointer;font-size:44px;line-height:1;
-    transition:transform .08s;font-family:inherit;
-  }
-  .muyu-btn:active{transform:scale(.88)}
-  .muyu-tip{font-size:12px;color:var(--ink-soft);margin-top:4px;letter-spacing:1px}
-  .merit{
-    position:absolute;left:50%;transform:translateX(-50%);
-    font-size:15px;font-weight:700;color:var(--red);
-    font-family:"Kaiti SC","KaiTi",cursive;
-    pointer-events:none;animation:meritUp 1.1s ease-out forwards;
-    white-space:nowrap;
-  }
-  @keyframes meritUp{
-    0%{opacity:0;transform:translate(-50%,0) scale(.8)}
-    15%{opacity:1}
-    100%{opacity:0;transform:translate(-50%,-70px) scale(1.15)}
-  }
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--paper-100);
+  color:var(--ink-500);
+  font-family:var(--font-song);
+  font-size:var(--fs-body);
+  line-height:1.6;
+  min-height:100vh;
+  /* 宣纸材质：双层微光泽 */
+  background-image:
+    radial-gradient(circle at 20% 10%, rgba(201,162,39,.07), transparent 42%),
+    radial-gradient(circle at 85% 92%, rgba(181,57,44,.05), transparent 46%);
+  padding-bottom:96px; /* 为底部拇指操作条留位 */
+}
+button{font-family:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--red-500);outline-offset:2px;border-radius:4px}
 
-  /* ===== 页脚 ===== */
-  footer{
-    margin-top:44px;border-top:1px solid var(--line);padding-top:18px;
-    font-size:12px;color:var(--ink-soft);line-height:2;text-align:center;
-  }
-  footer .f-title{font-size:13px;font-weight:700;color:var(--ink);letter-spacing:1px}
-  footer a{color:var(--red);text-decoration:none;border-bottom:1px dotted var(--red)}
-  .star-btn{
-    display:inline-block;margin-top:10px;background:#24292f;color:#fff;
-    font-size:13px;font-weight:700;padding:9px 22px;border-radius:8px;
-    text-decoration:none;border:none;letter-spacing:1px;
-    box-shadow:0 3px 10px rgba(36,41,47,.3);
-  }
-  .star-btn:active{transform:scale(.96)}
+.page{max-width:480px;margin:0 auto;padding:var(--sp-5) var(--sp-4) var(--sp-10);position:relative}
+
+/* ============ 顶栏 ============ */
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--sp-4)}
+.brand{font-size:var(--fs-aux);letter-spacing:2px;color:var(--ink-300)}
+.brand b{color:var(--red-500);font-weight:700}
+.badge-1024{
+  font-size:var(--fs-caption);color:var(--paper-50);background:var(--red-500);
+  padding:var(--sp-1) var(--sp-3);border-radius:var(--r-pill);letter-spacing:1px;
+  box-shadow:0 2px 6px rgba(142,43,33,.25);
+}
+
+/* ============ 黄历头 ============ */
+.almanac-head{
+  background:linear-gradient(180deg,var(--paper-50),var(--paper-200));
+  border:2px solid var(--red-700);
+  border-radius:var(--r-card);
+  padding:var(--sp-6) var(--sp-5) var(--sp-4);
+  position:relative;overflow:hidden;
+  box-shadow:0 0 0 6px var(--paper-100), 0 0 0 8px var(--gold-500), 0 10px 26px rgba(58,47,36,.18);
+}
+.almanac-head::before{
+  content:"麦门永存";
+  position:absolute;top:var(--sp-4);right:var(--sp-3);
+  writing-mode:vertical-rl;
+  font-family:var(--font-kai);
+  font-size:var(--fs-caption);letter-spacing:4px;color:var(--red-500);
+}
+.date-line{font-size:var(--fs-body);color:var(--ink-300);letter-spacing:1px;margin-bottom:var(--sp-3)}
+.hero-yiji{display:flex;align-items:flex-end;gap:var(--sp-5)}
+.hero-item{display:flex;align-items:baseline;gap:var(--sp-2)}
+.hero-label{font-size:var(--fs-strong);color:var(--ink-300);font-family:var(--font-kai)}
+.hero-word{font-size:var(--fs-display);font-weight:700;line-height:1}
+.hero-word.yi{color:var(--red-500)}
+.hero-word.ji{color:var(--ink-500)}
+.hero-sub{margin-top:var(--sp-3);font-size:var(--fs-aux);color:var(--ink-300)}
+.hero-sub em{font-style:normal;color:var(--gold-500);font-weight:700}
+
+/* 时辰条 */
+.shichen{
+  display:flex;gap:var(--sp-1);overflow-x:auto;margin-top:var(--sp-4);
+  padding:var(--sp-2) 0;border-top:1px solid var(--paper-300);
+  scrollbar-width:none;
+}
+.shichen::-webkit-scrollbar{display:none}
+.sc-item{
+  flex:0 0 auto;text-align:center;padding:var(--sp-1) var(--sp-2);
+  border-radius:var(--r-chip);font-size:var(--fs-caption);color:var(--ink-300);
+  border:1px solid transparent;min-width:44px;
+}
+.sc-item .sc-time{display:block;font-size:10px;opacity:.75;transform:scale(.9)}
+.sc-item.now{
+  color:var(--red-500);font-weight:700;
+  border-color:var(--red-500);background:var(--paper-50);
+}
+.sc-item.now .sc-dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--red-500);margin-left:2px;vertical-align:2px}
+
+/* ============ 分区标题 ============ */
+.section-title{
+  display:flex;align-items:center;gap:var(--sp-3);
+  font-size:var(--fs-strong);font-weight:700;margin:var(--sp-6) 0 var(--sp-3);letter-spacing:1px;
+}
+.section-title::before,.section-title::after{content:"";height:1px;flex:1;background:var(--paper-300)}
+
+/* ============ 状态 chips ============ */
+.chips{display:flex;flex-wrap:wrap;gap:var(--sp-2)}
+.chip{
+  border:1.5px solid var(--paper-300);background:var(--paper-50);color:var(--ink-500);
+  font-size:var(--fs-aux);padding:var(--sp-2) var(--sp-4);border-radius:var(--r-pill);
+  cursor:pointer;transition:all var(--dur-fast);min-height:40px;
+  display:inline-flex;align-items:center;
+}
+.chip:active{transform:scale(.96)}
+.chip[aria-pressed="true"]{
+  border-color:var(--red-500);background:var(--red-500);color:var(--paper-50);
+  box-shadow:0 3px 10px rgba(181,57,44,.28);
+}
+
+/* ============ 转盘 ============ */
+.wheel-wrap{display:flex;flex-direction:column;align-items:center;margin-top:var(--sp-5)}
+.wheel{
+  width:220px;height:220px;border-radius:50%;position:relative;
+  background:radial-gradient(circle, var(--paper-50) 0 34%, var(--paper-200) 34% 100%);
+  border:3px solid var(--red-700);
+  box-shadow:0 0 0 6px var(--paper-100), 0 0 0 8px var(--gold-500), 0 10px 26px rgba(58,47,36,.18);
+  transition:transform 2.4s var(--ease-wheel);
+  margin:var(--sp-4) 0;
+}
+.wheel-item{
+  position:absolute;left:50%;top:50%;transform-origin:0 0;
+  font-size:var(--fs-aux);color:var(--ink-500);white-space:nowrap;font-weight:700;
+}
+.wheel-needle{
+  position:absolute;left:50%;top:-14px;transform:translateX(-50%);
+  width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;
+  border-top:16px solid var(--red-500);filter:drop-shadow(0 2px 3px rgba(0,0,0,.25));z-index:2;
+}
+.wheel-center{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:76px;height:76px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, #d4523f, var(--red-700));
+  color:var(--paper-50);display:flex;align-items:center;justify-content:center;
+  font-size:var(--fs-strong);font-weight:700;letter-spacing:2px;font-family:var(--font-kai);
+  box-shadow:inset 0 2px 6px rgba(255,255,255,.25), 0 3px 8px rgba(142,43,33,.4);
+}
+.spin-btn{
+  border:none;cursor:pointer;
+  background:linear-gradient(180deg,#c8463a,var(--red-700));
+  color:var(--paper-50);font-size:var(--fs-sub);font-weight:700;letter-spacing:6px;
+  padding:var(--sp-3) 44px var(--sp-3) 50px;border-radius:var(--r-pill);
+  box-shadow:0 5px 16px rgba(142,43,33,.35);transition:transform var(--dur-fast);
+  min-height:48px;
+}
+.spin-btn:active{transform:scale(.95)}
+.spin-btn:disabled{opacity:.55;cursor:not-allowed}
+.lock-note{font-size:var(--fs-caption);color:var(--ink-300);margin-top:var(--sp-3);min-height:16px;text-align:center}
+
+/* ============ 运势卡 ============ */
+.result{
+  margin-top:var(--sp-6);background:var(--paper-50);
+  border:2px solid var(--red-700);border-radius:var(--r-card);
+  overflow:hidden;box-shadow:0 6px 20px rgba(58,47,36,.12);display:none;
+}
+.result.show{display:block;animation:cardIn .5s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes cardIn{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:none}}
+.result-head{
+  color:var(--paper-50);padding:var(--sp-3) var(--sp-4);
+  display:flex;justify-content:space-between;align-items:center;
+}
+/* 吉凶语义色阶 */
+.result-head.lvl-daji{background:linear-gradient(135deg,var(--red-500),var(--red-700))}
+.result-head.lvl-zhongji{background:linear-gradient(135deg,var(--gold-700),#8a6516)}
+.result-head.lvl-xiaoji,.result-head.lvl-banji,.result-head.lvl-ping{background:linear-gradient(135deg,var(--ink-500),#241d15)}
+.result-head.lvl-xiong{background:linear-gradient(135deg,var(--indigo-600),#2a3550)}
+.result-head .lvl{font-size:var(--fs-lvl);font-weight:700;letter-spacing:3px;font-family:var(--font-kai)}
+.result-head .tag{font-size:var(--fs-caption);opacity:.92;letter-spacing:1px}
+.boost-line{
+  background:var(--gold-500);color:var(--ink-500);
+  font-size:var(--fs-caption);font-weight:700;padding:var(--sp-1) var(--sp-4);letter-spacing:1px;
+}
+.result-body{padding:var(--sp-4)}
+.yiji-row{display:flex;gap:var(--sp-3);margin-bottom:var(--sp-3)}
+.yiji-cell{flex:1;background:var(--paper-100);border:1px dashed var(--paper-300);border-radius:var(--r-cell);padding:var(--sp-3)}
+.yiji-cell .k{font-size:var(--fs-body);font-weight:700;margin-bottom:var(--sp-1)}
+.yiji-cell.yi .k{color:var(--red-500)}
+.yiji-cell.ji .k{color:var(--ink-500)}
+.yiji-cell .v{font-size:var(--fs-strong);font-weight:700;line-height:1.35}
+.yiji-cell .w{font-size:var(--fs-caption);color:var(--ink-300);margin-top:var(--sp-1);line-height:1.5}
+.yiji-cell .nut{font-size:var(--fs-caption);color:var(--gold-700);margin-top:var(--sp-1);font-weight:700}
+.poem{
+  text-align:center;font-family:var(--font-kai);
+  font-size:var(--fs-sub);color:var(--red-700);letter-spacing:2px;
+  padding:var(--sp-4) var(--sp-2);border-top:1px solid var(--paper-300);border-bottom:1px solid var(--paper-300);
+  margin:var(--sp-2) 0 var(--sp-4);
+}
+.pkg-title{font-size:var(--fs-aux);font-weight:700;color:var(--ink-300);letter-spacing:2px;margin-bottom:var(--sp-2)}
+.pkg-item{display:flex;justify-content:space-between;font-size:var(--fs-body);padding:var(--sp-2) 0;border-bottom:1px dotted var(--paper-300)}
+.pkg-item:last-child{border-bottom:none}
+.pkg-item .p{color:var(--ink-300)}
+.pkg-item .nut{color:var(--gold-700);font-size:var(--fs-caption);margin-left:var(--sp-2)}
+.pkg-total{display:flex;justify-content:space-between;align-items:baseline;margin-top:var(--sp-3);padding-top:var(--sp-3);border-top:2px solid var(--red-700)}
+.pkg-total .l{font-size:var(--fs-aux);color:var(--ink-300)}
+.pkg-total .r{font-size:var(--fs-aux);color:var(--ink-300)}
+.pkg-total .r b{font-size:var(--fs-title);color:var(--red-500)}
+.mock-note{font-size:var(--fs-caption);color:var(--ink-300);text-align:center;margin-top:var(--sp-3);line-height:1.6}
+
+/* ============ 分享卡 ============ */
+.share-card{margin-top:var(--sp-6)}
+.share-card[hidden]{display:none}
+.share-title{font-size:var(--fs-aux);font-weight:700;color:var(--ink-300);letter-spacing:2px;text-align:center;margin-bottom:var(--sp-3)}
+.share-frame{
+  background:linear-gradient(180deg,var(--paper-50),var(--paper-200));
+  border:2px solid var(--red-700);border-radius:var(--r-card);
+  padding:var(--sp-5) var(--sp-4) var(--sp-4);position:relative;overflow:hidden;
+  box-shadow:0 0 0 4px var(--paper-100), 0 0 0 6px var(--gold-500), 0 8px 20px rgba(58,47,36,.15);
+}
+.share-frame::before{
+  content:"麦门永存";position:absolute;top:var(--sp-3);right:var(--sp-2);
+  writing-mode:vertical-rl;font-family:var(--font-kai);
+  font-size:10px;letter-spacing:3px;color:var(--red-500);
+}
+.share-head{display:flex;justify-content:space-between;align-items:baseline;font-size:var(--fs-aux);color:var(--ink-300)}
+.share-head b{color:var(--ink-500);font-size:var(--fs-strong)}
+.share-lvl{
+  font-family:var(--font-kai);font-size:var(--fs-hero);font-weight:700;
+  text-align:center;margin:var(--sp-3) 0 var(--sp-1);color:var(--red-500);
+}
+.share-lvl.lvl-zhongji{color:var(--gold-700)}
+.share-lvl.lvl-xiaoji,.share-lvl.lvl-banji,.share-lvl.lvl-ping{color:var(--ink-500)}
+.share-lvl.lvl-xiong{color:var(--indigo-600)}
+.share-yiji{text-align:center;font-size:var(--fs-body);margin-bottom:var(--sp-2)}
+.share-yiji b{font-size:var(--fs-strong)}
+.share-yiji .y{color:var(--red-500)}
+.share-yiji .j{color:var(--ink-500)}
+.share-poem{
+  text-align:center;font-family:var(--font-kai);font-size:var(--fs-strong);
+  color:var(--red-700);padding:var(--sp-3) 0;border-top:1px solid var(--paper-300);border-bottom:1px solid var(--paper-300);
+}
+.share-pkg{font-size:var(--fs-caption);color:var(--ink-300);text-align:center;margin:var(--sp-3) 0;line-height:1.8}
+.share-foot{display:flex;align-items:center;gap:var(--sp-3);border-top:1px dashed var(--paper-300);padding-top:var(--sp-3)}
+.share-qr{
+  width:56px;height:56px;flex:0 0 auto;border:1.5px solid var(--ink-500);border-radius:var(--r-chip);
+  display:flex;align-items:center;justify-content:center;
+  font-size:var(--fs-caption);font-weight:700;color:var(--ink-500);letter-spacing:1px;
+}
+.share-links{font-size:var(--fs-caption);color:var(--ink-300);line-height:1.7}
+.share-links b{color:var(--ink-500)}
+.share-watermark{
+  text-align:center;font-family:var(--font-kai);font-size:var(--fs-caption);
+  color:var(--gold-700);margin-top:var(--sp-3);letter-spacing:2px;
+}
+.share-hint{font-size:var(--fs-caption);color:var(--ink-300);text-align:center;margin-top:var(--sp-3)}
+
+/* ============ 木鱼彩蛋 ============ */
+.muyu{margin-top:var(--sp-8);text-align:center;position:relative}
+.muyu-btn{border:none;background:transparent;cursor:pointer;font-size:44px;line-height:1;transition:transform 80ms;min-width:48px;min-height:48px}
+.muyu-btn:active{transform:scale(.88)}
+.muyu-tip{font-size:var(--fs-caption);color:var(--ink-300);margin-top:var(--sp-1);letter-spacing:1px}
+.merit{
+  position:fixed;font-size:var(--fs-strong);font-weight:700;color:var(--red-500);
+  font-family:var(--font-kai);pointer-events:none;animation:meritUp 1.1s ease-out forwards;white-space:nowrap;z-index:60;
+}
+@keyframes meritUp{
+  0%{opacity:0;transform:translate(-50%,0) scale(.8)}
+  15%{opacity:1}
+  100%{opacity:0;transform:translate(-50%,-70px) scale(1.15)}
+}
+
+/* ============ 页脚 ============ */
+footer{margin-top:var(--sp-10);border-top:1px solid var(--paper-300);padding-top:var(--sp-5);font-size:var(--fs-caption);color:var(--ink-300);line-height:2;text-align:center}
+footer .f-title{font-size:var(--fs-aux);font-weight:700;color:var(--ink-500);letter-spacing:1px}
+footer a{color:var(--red-500);text-decoration:none;border-bottom:1px dotted var(--red-500)}
+.star-btn{
+  display:inline-block;margin-top:var(--sp-3);background:#24292f;color:#fff;
+  font-size:var(--fs-aux);font-weight:700;padding:var(--sp-2) var(--sp-5);border-radius:var(--r-chip);
+  text-decoration:none;border:none;letter-spacing:1px;box-shadow:0 3px 10px rgba(36,41,47,.3);
+}
+.star-btn:active{transform:scale(.96)}
+
+/* ============ 拇指操作条 ============ */
+.thumb-bar{
+  position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--sp-4) + env(safe-area-inset-bottom));
+  display:flex;gap:var(--sp-2);z-index:50;
+  background:rgba(250,245,234,.92);backdrop-filter:blur(8px);
+  border:1.5px solid var(--red-700);border-radius:var(--r-pill);
+  padding:var(--sp-2);box-shadow:0 6px 20px rgba(58,47,36,.25);
+  max-width:calc(100vw - 32px);
+}
+.tb-btn{
+  border:none;background:transparent;cursor:pointer;
+  font-size:var(--fs-aux);font-weight:700;color:var(--ink-500);
+  padding:var(--sp-2) var(--sp-4);border-radius:var(--r-pill);
+  min-height:44px;display:inline-flex;align-items:center;gap:var(--sp-1);
+  transition:all var(--dur-fast);white-space:nowrap;
+}
+.tb-btn:active{transform:scale(.95)}
+.tb-btn.primary{background:var(--red-500);color:var(--paper-50);box-shadow:0 3px 10px rgba(181,57,44,.3)}
+.tb-btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* ============ 减弱动效 ============ */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none !important;transition:none !important}
+}
+
+/* ============ 桌面端 ============ */
+@media (min-width:481px){
+  body{padding-bottom:var(--sp-10)}
+  .thumb-bar{position:fixed}
+}
 </style>
 </head>
 <body>
 <div class="page">
 
-  <div class="topbar">
+  <header class="topbar">
     <div class="brand"><b>麦门老黄历</b> · MAIMEN ALMANAC</div>
     <div class="badge-1024">1024 程序员节参赛作品</div>
-  </div>
+  </header>
 
   <!-- 黄历头 -->
-  <div class="almanac-head">
+  <section class="almanac-head" aria-label="今日黄历">
     <div class="date-line" id="dateLine">麦历 加载中…</div>
     <div class="hero-yiji">
       <div class="hero-item">
@@ -238,16 +347,18 @@
         <span class="hero-word ji">emo</span>
       </div>
     </div>
-    <div class="hero-sub">今日运势 <em>「麦门庇佑」</em> · 选择你的状态，罗盘一转，吉凶自现</div>
-  </div>
+    <div class="hero-sub">今日运势 <em>「麦门庇佑」</em> · 选状态，转罗盘，吉凶自现</div>
+    <div class="shichen" id="shichen" aria-hidden="true"></div>
+    <p class="sr-only" id="srShichen" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)"></p>
+  </section>
 
   <!-- 状态选择 -->
-  <div class="section-title">今日状态（可多选）</div>
-  <div class="chips" id="chips"></div>
+  <h2 class="section-title">今日状态（可多选）</h2>
+  <div class="chips" id="chips" role="group" aria-label="今日状态多选"></div>
 
   <!-- 转盘 -->
   <div class="wheel-wrap">
-    <div class="wheel" id="wheel">
+    <div class="wheel" id="wheel" aria-hidden="true">
       <div class="wheel-needle"></div>
       <div class="wheel-center">开<br>转</div>
     </div>
@@ -255,42 +366,66 @@
     <div class="lock-note" id="lockNote"></div>
   </div>
 
-  <!-- 结果 -->
-  <div class="result" id="result">
-    <div class="result-head">
+  <!-- 运势卡 -->
+  <section class="result" id="result" role="status" aria-live="polite" aria-label="今日运势结果">
+    <div class="result-head" id="rHead">
       <div class="lvl" id="rLvl">大吉</div>
       <div class="tag" id="rTag">麦门历 · 今日签</div>
     </div>
+    <div class="boost-line" id="rBoost" hidden>⚡ 今日有券加成，运势升档</div>
     <div class="result-body">
       <div class="yiji-row">
         <div class="yiji-cell yi">
           <div class="k">宜</div>
           <div class="v" id="rYi"></div>
           <div class="w" id="rYiWhy"></div>
+          <div class="nut" id="rYiNut" hidden></div>
         </div>
         <div class="yiji-cell ji">
           <div class="k">忌</div>
           <div class="v" id="rJi"></div>
           <div class="w" id="rJiWhy"></div>
+          <div class="nut" id="rJiNut" hidden></div>
         </div>
       </div>
       <div class="poem" id="rPoem"></div>
       <div class="pkg-title">— 开 运 套 餐 —</div>
       <div id="rPkg"></div>
       <div class="pkg-total">
-        <span class="l">官方算价 / 券后参考价</span>
-        <span class="r">¥<b id="rPrice"></b> <span style="font-size:12px">起</span></span>
+        <span class="l">参考价（演示价格，非官方报价）</span>
+        <span class="r">¥<b id="rPrice"></b> <span style="font-size:var(--fs-caption)">起</span></span>
       </div>
-      <button class="share-btn" id="shareBtn">📋 复制今日签文，去朋友圈麦一个</button>
       <div class="mock-note">
         本页为演示界面 · Skill 已接入麦当劳官方 MCP<br>真实模式：日期 / 优惠券 / 营养数据 / 门店均为实时数据
       </div>
     </div>
-  </div>
+  </section>
+
+  <!-- 分享卡 -->
+  <section class="share-card" id="shareCard" hidden aria-label="今日签分享卡">
+    <div class="share-title">— 今 日 签 · 分 享 卡 —</div>
+    <div class="share-frame">
+      <div class="share-head"><b>麦门老黄历</b><span id="scDate"></span></div>
+      <div class="share-lvl" id="scLvl">大吉</div>
+      <div class="share-yiji">宜 <b class="y" id="scYi"></b> · 忌 <b class="j" id="scJi"></b></div>
+      <div class="share-poem" id="scPoem"></div>
+      <div class="share-pkg" id="scPkg"></div>
+      <div class="share-foot">
+        <div class="share-qr">QR</div>
+        <div class="share-links">
+          <b>GitHub 搜 mcd-almanac</b><br>
+          github.com/gsgsmm/mcd-almanac<br>
+          零依赖 Skill · 无 Token 也能 --demo 玩
+        </div>
+      </div>
+      <div class="share-watermark">麦门保佑 · 截图发朋友圈</div>
+    </div>
+    <p class="share-hint">竖版卡片为截图优化 · 长按保存或直接截图分享</p>
+  </section>
 
   <!-- 木鱼彩蛋 -->
   <div class="muyu">
-    <button class="muyu-btn" id="muyuBtn">🪵</button>
+    <button class="muyu-btn" id="muyuBtn" aria-label="敲木鱼，积功德">🪵</button>
     <div class="muyu-tip">敲一敲 · 功德 +1 · 麦门保佑（彩蛋，不影响运势）</div>
   </div>
 
@@ -299,43 +434,62 @@
     <div class="f-title">麦门老黄历 · mcd-almanac</div>
     <div>基于麦当劳中国官方 MCP（mcp.mcd.cn）能力开发</div>
     <div>参赛：1024 程序员节 · 麦当劳程序员创意开发大赛</div>
-    <div>本页由 WorkBuddy 开发 · 完整对话记录见仓库 workbuddy.md</div>
-    <a class="star-btn" href="https://github.com/M-China/mcd-developer-innovation-challenge" target="_blank" rel="noopener">⭐ 大赛主页 / 来 GitHub 看源码</a>
+    <div>本页由 WorkBuddy 开发 · 界面设计：像素君 UI v2.0</div>
+    <a class="star-btn" href="https://github.com/gsgsmm/mcd-almanac" target="_blank" rel="noopener">⭐ GitHub 搜 mcd-almanac</a>
   </footer>
 </div>
 
+<!-- 拇指操作条 -->
+<nav class="thumb-bar" aria-label="快捷操作">
+  <button class="tb-btn primary" id="tbSpin">🪔 开转</button>
+  <button class="tb-btn" id="tbCopy" disabled>📋 复制签文</button>
+  <button class="tb-btn" id="tbShare" disabled>🎴 分享卡</button>
+  <button class="tb-btn" id="tbMuyu">🪷 木鱼</button>
+</nav>
+
 <script>
-/* ================= 数据（演示层，接入 MCP 后替换为真实数据） ================= */
+/* ================= 数据（与 Skill 引擎同源，演示层） ================= */
 var STATES = [
-  {id:"monday",   label:"周一综合症", yi:"麦辣鸡翅",   yiWhy:"以辣解忧，辣醒昏迷的周一",   ji:"白开水",     jiWhy:"越喝越淡，周一忌淡",           pkg:"monday"},
-  {id:"wc",       label:"带薪如厕",   yi:"小份薯条",   yiWhy:"悄无声息，体面摸鱼",         ji:"麦辣鸡腿堡", jiWhy:"香味太冲，容易暴露",           pkg:"wc"},
-  {id:"lieflat",  label:"周末躺平",   yi:"麦乐送全家桶", yiWhy:"床以外的地方都是远方",     ji:"出门堂食",   jiWhy:"躺平人，今天不出门",           pkg:"lieflat"},
-  {id:"diet",     label:"减肥第三天", yi:"玉米杯+无糖可乐", yiWhy:"低卡续命，心理安慰拉满",  ji:"巧克力甜筒", jiWhy:"第三天的意志，经不起试探",     pkg:"diet"},
-  {id:"breakup",  label:"失恋第7天",  yi:"双层吉士堡", yiWhy:"双倍芝士，填补空心",         ji:"双人套餐",   jiWhy:"前任的座位，先空着",           pkg:"breakup"},
-  {id:"overtime", label:"加班夜归人", yi:"24h热咖啡",  yiWhy:"深夜续命，麦门收留",         ji:"空腹入睡",   jiWhy:"胃里空空，心里更空",           pkg:"overtime"},
-  {id:"payday",   label:"发工资日",   yi:"巨无霸套餐", yiWhy:"赚钱不花，过期作废",         ji:"查余额",     jiWhy:"快乐经不起对账",               pkg:"payday"},
-  {id:"exam",     label:"考前突击",   yi:"麦满分早餐", yiWhy:"一顿满分，科科满分",         ji:"甜筒",       jiWhy:"化得太快，知识点也是",           pkg:"exam"}
+  {id:"monday",   label:"周一综合症", yi:"麦辣鸡翅",   yiWhy:"以辣解忧，辣醒昏迷的周一",   ji:"白开水",     jiWhy:"越喝越淡，周一忌淡",         pkg:"monday"},
+  {id:"wc",       label:"带薪如厕",   yi:"小份薯条",   yiWhy:"悄无声息，体面摸鱼",         ji:"麦辣鸡腿堡", jiWhy:"香味太冲，容易暴露",         pkg:"wc"},
+  {id:"lieflat",  label:"周末躺平",   yi:"麦乐送全家桶", yiWhy:"床以外的地方都是远方",     ji:"出门堂食",   jiWhy:"躺平人，今天不出门",         pkg:"lieflat"},
+  {id:"diet",     label:"减肥第三天", yi:"玉米杯+无糖可乐", yiWhy:"低卡续命，心理安慰拉满",  ji:"巧克力甜筒", jiWhy:"第三天的意志，经不起试探",   pkg:"diet"},
+  {id:"breakup",  label:"失恋第7天",  yi:"双层吉士堡", yiWhy:"双倍芝士，填补空心",         ji:"双人套餐",   jiWhy:"前任的座位，先空着",         pkg:"breakup"},
+  {id:"overtime", label:"加班夜归人", yi:"24h热咖啡",  yiWhy:"深夜续命，麦门收留",         ji:"空腹入睡",   jiWhy:"胃里空空，心里更空",         pkg:"overtime"},
+  {id:"payday",   label:"发工资日",   yi:"巨无霸套餐", yiWhy:"赚钱不花，过期作废",         ji:"查余额",     jiWhy:"快乐经不起对账",             pkg:"payday"},
+  {id:"exam",     label:"考前突击",   yi:"麦满分早餐", yiWhy:"一顿满分，科科满分",         ji:"甜筒",       jiWhy:"化得太快，知识点也是",         pkg:"exam"}
 ];
 
 var PACKAGES = {
-  monday:   {name:"周一清醒包",   items:[["麦辣鸡腿堡",18.5],["小份薯条",7.0],["可口可乐(中)",7.5]],  price:33.0},
-  wc:       {name:"摸鱼安静包",   items:[["小份薯条",7.0],["无糖可乐(中)",7.5],["玉米杯",6.5]],        price:21.0},
-  lieflat:  {name:"躺平全家桶",   items:[["麦乐送全家桶",64.0],["巧克力甜筒",6.0],["可乐(中)",7.5]],  price:77.5},
-  diet:     {name:"减脂安慰餐",   items:[["玉米杯",6.5],["无糖可乐(中)",7.5],["苹果片",6.0]],          price:20.0},
-  breakup:  {name:"疗愈双倍包",   items:[["双层吉士堡",15.5],["麦乐鸡(5块)",12.0],["可乐(中)",7.5]],   price:35.0},
-  overtime: {name:"深夜疗愈包",   items:[["热咖啡(中)",13.0],["麦乐鸡(5块)",12.0]],                    price:25.0},
-  payday:   {name:"发工资狂欢包", items:[["巨无霸套餐(大)",42.0],["麦辣鸡翅(2块)",13.0],["甜筒",6.0]], price:61.0},
-  exam:     {name:"满分冲刺包",   items:[["麦满分(猪柳蛋)",15.0],["鲜煮咖啡(中)",10.0],["薯饼",6.0]],   price:31.0}
+  monday:   {name:"周一清醒包",   items:[["麦辣鸡腿堡",18.5,485],["小份薯条",7.0,210],["可口可乐(中)",7.5,147]], price:33.0},
+  wc:       {name:"摸鱼安静包",   items:[["小份薯条",7.0,210],["无糖可乐(中)",7.5,0],["玉米杯",6.5,87]],        price:21.0},
+  lieflat:  {name:"躺平全家桶",   items:[["麦乐送全家桶",64.0,null],["圆筒冰淇淋",6.0,93],["可口可乐(中)",7.5,147]], price:77.5},
+  diet:     {name:"减脂安慰餐",   items:[["玉米杯",6.5,87],["无糖可乐(中)",7.5,0],["苹果片",6.0,32]],          price:20.0},
+  breakup:  {name:"疗愈双倍包",   items:[["双层吉士堡",15.5,429],["麦乐鸡(5块)",12.0,213],["可口可乐(中)",7.5,147]], price:35.0},
+  overtime: {name:"深夜疗愈包",   items:[["鲜萃咖啡(大杯)",13.0,13],["麦乐鸡(5块)",12.0,213]],                price:25.0},
+  payday:   {name:"发工资狂欢包", items:[["巨无霸",21.5,513],["麦辣鸡翅(2块)",13.0,224],["圆筒冰淇淋",6.0,93]], price:40.5},
+  exam:     {name:"满分冲刺包",   items:[["猪柳蛋麦满分",15.0,387],["鲜萃咖啡(大杯)",13.0,13],["脆薯饼",6.0,146]], price:34.0}
 };
 
 var FORTUNES = [
-  {lvl:"大吉", tag:"麦门庇佑 · 诸事皆宜", poem:"麦门庇佑，薯条镇楼，横财就手"},
-  {lvl:"中吉", tag:"运势回甘 · 宜趁热打铁", poem:"可乐去冰，烦恼清零，万事可期"},
-  {lvl:"小吉", tag:"小确幸 · 稳住别慌",   poem:"甜筒压惊，明日再战，稳住别慌"},
-  {lvl:"半吉", tag:"喜忧参半 · 心态要平", poem:"麦辣开胃，运势回甘，先吃再说"},
-  {lvl:"平",   tag:"平平淡淡 · 养生局",   poem:"玉米杯养生，苟住就是胜利"},
-  {lvl:"凶",   tag:"大凶 · 但有解法",     poem:"今日大凶，宜呼友共食，可破"}
+  {lvl:"大吉", cls:"daji",     tag:"麦门庇佑 · 诸事皆宜", poem:"麦门庇佑，薯条镇楼，横财就手"},
+  {lvl:"中吉", cls:"zhongji",  tag:"运势回甘 · 宜趁热打铁", poem:"可乐去冰，烦恼清零，万事可期"},
+  {lvl:"小吉", cls:"xiaoji",   tag:"小确幸 · 稳住别慌",   poem:"甜筒压惊，明日再战，稳住别慌"},
+  {lvl:"半吉", cls:"banji",    tag:"喜忧参半 · 心态要平", poem:"麦辣开胃，运势回甘，先吃再说"},
+  {lvl:"平",   cls:"ping",     tag:"平平淡淡 · 养生局",   poem:"玉米杯养生，苟住就是胜利"},
+  {lvl:"凶",   cls:"xiong",    tag:"大凶 · 但有解法",     poem:"今日大凶，宜呼友共食，可破"}
 ];
+
+/* 宜/忌餐品 -> 官方营养（演示数据，与真实接口同结构） */
+var NUTRITION = {
+  "麦辣鸡翅":[224,13], "小份薯条":[210,3], "麦辣鸡腿堡":[485,24], "圆筒冰淇淋":[93,2],
+  "玉米杯":[87,4], "无糖可乐":[0,0], "双层吉士堡":[429,27], "巨无霸套餐":[513,27],
+  "24h热咖啡":[13,1], "麦满分早餐":[387,23], "苹果片":[32,0], "麦乐鸡":[213,12],
+  "巧克力甜筒":[93,2], "甜筒":[93,2], "巨无霸":[513,27], "猪柳蛋麦满分":[387,23]
+};
+
+var SHI_CHEN = [["子","23-1"],["丑","1-3"],["寅","3-5"],["卯","5-7"],["辰","7-9"],["巳","9-11"],
+                ["午","11-13"],["未","13-15"],["申","15-17"],["酉","17-19"],["戌","19-21"],["亥","21-23"]];
 
 /* ================= 工具 ================= */
 function mulberry32(a){
@@ -354,12 +508,34 @@ function cnDay(d){
   var tens=t===1?"十":t===2?"廿":CN_NUM[t]+"十";
   return tens+(u?CN_NUM[u]:"");
 }
+function todayKey(){
+  var d=new Date();
+  return d.getFullYear()+"-"+d.getMonth()+1+"-"+d.getDate();
+}
+
+/* ================= 时辰条 ================= */
+(function(){
+  var now=new Date().getHours();
+  var idx=Math.floor((now+1)/2)%12;
+  var box=document.getElementById("shichen");
+  var html="";
+  SHI_CHEN.forEach(function(sc,i){
+    html+='<div class="sc-item'+(i===idx?" now":"")+'">'+sc[0]+'<span class="sc-time">'+sc[1]+'</span>'+(i===idx?'<span class="sc-dot"></span>':'')+'</div>';
+  });
+  box.innerHTML=html;
+  var nowItem=box.querySelector(".sc-item.now");
+  if(nowItem) nowItem.scrollIntoView({inline:"center",block:"nearest"});
+  document.getElementById("srShichen").textContent="当前时辰："+SHI_CHEN[idx][0]+"时（"+SHI_CHEN[idx][1]+"点）";
+})();
+
+/* ================= 黄历头日期 ================= */
 (function(){
   var d=new Date();
   var y=String(d.getFullYear()).split("").map(function(c){return CN_NUM[+c];}).join("");
   var week=["日","一","二","三","四","五","六"][d.getDay()];
   document.getElementById("dateLine").textContent=
     "麦历 "+y+"年 · "+CN_MONTH[d.getMonth()+1]+"月"+cnDay(d.getDate())+" · 星期"+week;
+  document.getElementById("scDate").textContent="麦历"+CN_MONTH[d.getMonth()+1]+"月"+cnDay(d.getDate());
 })();
 
 /* ================= 状态 chips ================= */
@@ -367,10 +543,10 @@ var selected={};
 var chipsBox=document.getElementById("chips");
 STATES.forEach(function(s){
   var b=document.createElement("button");
-  b.className="chip";b.textContent=s.label;b.dataset.id=s.id;
+  b.className="chip";b.textContent=s.label;b.dataset.id=s.id;b.setAttribute("aria-pressed","false");
   b.onclick=function(){
-    if(selected[s.id]){delete selected[s.id];b.classList.remove("on");}
-    else{selected[s.id]=s;b.classList.add("on");}
+    if(selected[s.id]){delete selected[s.id];b.setAttribute("aria-pressed","false");}
+    else{selected[s.id]=s;b.setAttribute("aria-pressed","true");}
   };
   chipsBox.appendChild(b);
 });
@@ -390,36 +566,69 @@ var wheel=document.getElementById("wheel");
   });
 })();
 
-/* ================= 运势逻辑（按日锁定） ================= */
-var todayKey=String(new Date().getFullYear())+"-"+(new Date().getMonth()+1)+"-"+new Date().getDate();
+/* ================= 运势逻辑（按日锁定，与 Skill 引擎同规则） ================= */
 function drawFortune(){
   var ids=Object.keys(selected);
   var d=new Date();
   var seed=d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate();
   ids.forEach(function(id){for(var i=0;i<id.length;i++)seed+=id.charCodeAt(i);});
-  var rnd=mulberry32(seed);
-  var f=FORTUNES[Math.floor(rnd()*FORTUNES.length)];
-  var s=ids.length?selected[ids[Math.floor(rnd()*ids.length)]]:STATES[Math.floor(rnd()*STATES.length)];
+  var rng=mulberry32(seed);
+  var f=FORTUNES[Math.floor(rng()*FORTUNES.length)];
+  var s=ids.length?selected[ids[Math.floor(rng()*ids.length)]]:STATES[Math.floor(rng()*STATES.length)];
   var pkg=PACKAGES[s.pkg];
-  return{f:f,s:s,pkg:pkg};
+  /* 演示版「有券加成」：周一综合症固定命中（与演示券数据一致） */
+  var boosted=(s.id==="monday");
+  if(boosted){
+    var order=["daji","zhongji","xiaoji","banji","ping","xiong"];
+    var cur=order.indexOf(f.cls);
+    if(cur>0) f=FORTUNES[cur-1];
+  }
+  return {f:f,s:s,pkg:pkg,boosted:boosted};
 }
+
+function nutritionOf(item){
+  if(!item)return null;
+  for(var key in NUTRITION){
+    if(item.indexOf(key)===0) return NUTRITION[key];
+  }
+  return null;
+}
+
+var lastDraw=null;
 function showResult(){
   var r=drawFortune();
+  lastDraw=r;
   document.getElementById("rLvl").textContent=r.f.lvl;
   document.getElementById("rTag").textContent=r.f.tag;
+  document.getElementById("rHead").className="result-head lvl-"+r.f.cls;
+  document.getElementById("rBoost").hidden=!r.boosted;
   document.getElementById("rYi").textContent=r.s.yi;
   document.getElementById("rYiWhy").textContent=r.s.yiWhy;
   document.getElementById("rJi").textContent=r.s.ji;
   document.getElementById("rJiWhy").textContent=r.s.jiWhy;
+  var yiNut=nutritionOf(r.s.yi), jiNut=nutritionOf(r.s.ji);
+  var yiNutEl=document.getElementById("rYiNut"), jiNutEl=document.getElementById("rJiNut");
+  if(yiNut){yiNutEl.hidden=false;yiNutEl.textContent="🥗 "+yiNut[0]+"千卡 · 蛋白质"+yiNut[1]+"g";}else{yiNutEl.hidden=true;}
+  if(jiNut){jiNutEl.hidden=false;jiNutEl.textContent="🥗 "+jiNut[0]+"千卡";}else{jiNutEl.hidden=true;}
   document.getElementById("rPoem").textContent="「 "+r.f.poem+" 」";
   var html="";
   r.pkg.items.forEach(function(it){
-    html+='<div class="pkg-item"><span>'+it[0]+'</span><span class="p">¥'+it[1].toFixed(1)+'</span></div>';
+    html+='<div class="pkg-item"><span>'+it[0]+'</span><span class="p">¥'+it[1].toFixed(1)+(it[2]!=null?'<span class="nut">'+it[2]+'千卡</span>':'')+'</span></div>';
   });
   document.getElementById("rPkg").innerHTML=html;
   document.getElementById("rPrice").textContent=r.pkg.price.toFixed(1);
+  /* 分享卡同步 */
+  document.getElementById("scLvl").textContent=r.f.lvl;
+  document.getElementById("scLvl").className="share-lvl lvl-"+r.f.cls;
+  document.getElementById("scYi").textContent=r.s.yi;
+  document.getElementById("scJi").textContent=r.s.ji;
+  document.getElementById("scPoem").textContent="「 "+r.f.poem+" 」";
+  document.getElementById("scPkg").textContent="开运套餐 · "+r.pkg.name+" · 参考价 ¥"+r.pkg.price.toFixed(1);
   var box=document.getElementById("result");
   box.classList.remove("show");void box.offsetWidth;box.classList.add("show");
+  document.getElementById("shareCard").hidden=false;
+  document.getElementById("tbCopy").disabled=false;
+  document.getElementById("tbShare").disabled=false;
   box.scrollIntoView({behavior:"smooth",block:"start"});
 }
 
@@ -427,33 +636,42 @@ function showResult(){
 var spinBtn=document.getElementById("spinBtn");
 var lockNote=document.getElementById("lockNote");
 var rotation=0, spinning=false;
-spinBtn.onclick=function(){
+function spin(){
   if(spinning)return;
-  spinning=true;spinBtn.disabled=true;
+  spinning=true;
+  spinBtn.disabled=true;spinBtn.textContent="转动中…";
+  document.getElementById("tbSpin").disabled=true;
   lockNote.textContent="罗盘转动中，吉凶自现…";
   rotation+=1800+Math.floor(Math.random()*360);
   wheel.style.transform="rotate("+rotation+"deg)";
   setTimeout(function(){
     showResult();
-    spinning=false;spinBtn.disabled=false;
+    spinning=false;
+    spinBtn.disabled=false;spinBtn.textContent="开 转";
+    document.getElementById("tbSpin").disabled=false;
     lockNote.textContent="今日运势已定，罗盘明日复位 · 换状态可另开一签";
   },2400);
+}
+spinBtn.onclick=spin;
+document.getElementById("tbSpin").onclick=function(){
+  document.querySelector(".wheel-wrap").scrollIntoView({behavior:"smooth",block:"center"});
+  spin();
 };
 
-/* ================= 复制分享 ================= */
-var shareBtn=document.getElementById("shareBtn");
-var shareBtnText="📋 复制今日签文，去朋友圈麦一个";
-shareBtn.onclick=function(){
-  var r=drawFortune();
-  var txt="【麦门老黄历 · 今日签】\n"+todayKey+" · "+r.f.lvl+"\n宜："+r.s.yi+"（"+r.s.yiWhy+"）\n忌："+r.s.ji+"（"+r.s.jiWhy+"）\n签文：「 "+r.f.poem+" 」\n开运套餐："+r.pkg.name+"\n—— 麦门保佑 🍔";
-  function done(){
-    shareBtn.textContent="✅ 已复制，去朋友圈麦一个";
-    setTimeout(function(){shareBtn.textContent=shareBtnText;},2000);
+/* ================= 复制签文 ================= */
+var copyBtnText="📋 复制签文";
+function copyFortune(){
+  var r=lastDraw||drawFortune();
+  var txt="【麦门老黄历 · 今日签】\n"+todayKey()+" · "+r.f.lvl+"\n宜："+r.s.yi+"（"+r.s.yiWhy+"）\n忌："+r.s.ji+"（"+r.s.jiWhy+"）\n签文：「 "+r.f.poem+" 」\n开运套餐："+r.pkg.name+"\n—— 麦门保佑 🍔\nGitHub 搜 mcd-almanac";
+  function done(btn){
+    btn.textContent="✅ 已复制";
+    setTimeout(function(){btn.textContent=copyBtnText;},2000);
   }
+  var btn=document.getElementById("tbCopy");
   if(navigator.clipboard&&navigator.clipboard.writeText){
-    navigator.clipboard.writeText(txt).then(done).catch(function(){fallbackCopy(txt);done();});
-  }else{fallbackCopy(txt);done();}
-};
+    navigator.clipboard.writeText(txt).then(function(){done(btn);}).catch(function(){fallbackCopy(txt);done(btn);});
+  }else{fallbackCopy(txt);done(btn);}
+}
 function fallbackCopy(t){
   var ta=document.createElement("textarea");
   ta.value=t;ta.style.position="fixed";ta.style.opacity="0";
@@ -461,21 +679,29 @@ function fallbackCopy(t){
   try{document.execCommand("copy");}catch(e){}
   document.body.removeChild(ta);
 }
+document.getElementById("tbCopy").onclick=copyFortune;
+document.getElementById("tbShare").onclick=function(){
+  document.getElementById("shareCard").scrollIntoView({behavior:"smooth",block:"start"});
+};
 
-/* ================= 木鱼彩蛋 ================= */
-var muyu=document.getElementById("muyuBtn"), meritCount=0;
+/* ================= 木鱼 ================= */
+var meritCount=0;
 var MERIT_TEXTS=["功德 +1","功德 +1","麦门 +1s","功德 +1","金身+1","功德 +1","麦门永存 +1"];
-muyu.onclick=function(e){
+function knock(){
   meritCount++;
   var m=document.createElement("div");
   m.className="merit";
   m.textContent=MERIT_TEXTS[meritCount%MERIT_TEXTS.length];
-  var rect=muyu.getBoundingClientRect();
+  var rect=document.getElementById("muyuBtn").getBoundingClientRect();
   m.style.left=(rect.left+rect.width/2)+"px";
   m.style.top=(rect.top-6)+"px";
-  m.style.position="fixed";
   document.body.appendChild(m);
   setTimeout(function(){m.remove();},1100);
+}
+document.getElementById("muyuBtn").onclick=knock;
+document.getElementById("tbMuyu").onclick=function(){
+  knock();
+  document.querySelector(".muyu").scrollIntoView({behavior:"smooth",block:"center"});
 };
 </script>
 </body>
